@@ -14,16 +14,54 @@ namespace TheHashtable
         static void Main(string[] args)
         {
 
-            Hashtable<int, string> hashtable= new Hashtable<int, string>();
 
-            hashtable.Put(1, "Bayern");
-            hashtable.Put(2, "Oberösterreich");
-            hashtable.Put(3, "Niederösterreich");
-            hashtable.Put(300, "Wieselburg");
+            //------------------------------------------------------------
+            // Aufgabe 1
+            //------------------------------------------------------------
+            if (false)
+            {
+                Hashtable<string, string> hashtable = new Hashtable<string, string>();
+                for (int i = 0; i < 100; i++)
+                {
+                    string idx = i.ToString();
+                    hashtable.Put(idx, "Wert" + idx);
+                    //Console.WriteLine("Belegungsfaktor: {0}", hashtable.CalculateAlpha());
+                }
 
-            Console.WriteLine(hashtable.Get(3));
+                Console.WriteLine(hashtable.Get("1"));
+                Console.WriteLine(hashtable.Remove("8"));
+                Console.WriteLine(hashtable.Remove("8"));
+                Console.WriteLine(hashtable.Get("99"));
+                Console.WriteLine(hashtable.Get("100"));
+            }
 
-            Console.WriteLine("Der Eintrag mit dem Key {0} wurde entfernt: {1}",3, hashtable.Remove(3)); ;
+            //------------------------------------------------------------
+            // Aufgabe 2
+            //------------------------------------------------------------
+            if (true)
+            {
+                Hashtable<Person, string> hashtable = new Hashtable<Person, string>();
+
+                Person sumsi = new Person("Simon", "Fritzging", 27);
+                Person cheese = new Person("Simon", "Fritzging", 27);
+                Person fritzi = new Person("Fritz", "Fritzging", 28);
+
+                hashtable.Put(sumsi, "sumsi");
+                hashtable.Put(cheese, "cheese");
+                hashtable.Put(fritzi, "fritzi");
+
+                Console.WriteLine(hashtable.Get(sumsi));
+
+                sumsi.age = 30;
+
+                Console.WriteLine(hashtable.Get(sumsi));
+
+
+            }
+            
+
+
+
 
             Console.ReadKey();
 

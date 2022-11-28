@@ -19,11 +19,17 @@ namespace libHashtable
         ArrayList<SinglyLinkedList<(K,V)>> myArrayList { get; set; }
         SinglyLinkedList<(K,V)> myLinkedList { get; set; }
 
-        int alpha;
+        int maxLengthLinkedList;
+        int maxArrayLength;
+        int lengthArrayList;
+        
 
-        public Hashtable()
+        public Hashtable(int _length = 32)
         {
             myArrayList = new ArrayList<SinglyLinkedList<(K, V)>>();
+            maxArrayLength = _length;
+            lengthArrayList = 0;
+            maxLengthLinkedList = 0;
         }
       
 
@@ -35,7 +41,7 @@ namespace libHashtable
         public void Put(K key, V value)
         {
 
-            int idx = Math.Abs(key.GetHashCode());
+            int idx = GetIndex(key);
 
             // Prüfe ob Array an der Stelle idx einen Wert enthält
             if (myArrayList[idx] == default)
@@ -43,24 +49,23 @@ namespace libHashtable
                 // Falls noch keine LinkedList vorhanden --> erstellen
                 myLinkedList = new SinglyLinkedList<(K,V)>();
 
-                // Der ArrayList an der Stelle 'idx' die LinkedList verweisen
-                myArrayList[idx] = myLinkedList;
+                // Array-Zähler erhöhen
+                lengthArrayList++;
 
-                // Der LinkedList einen Node mit dem Tuple hinzufügen
-                myLinkedList.Add((key, value));
+                // Der ArrayList an der Stelle 'idx' die LinkedList verweisen
+                myArrayList[idx] = myLinkedList;                 
             }
             else
             {
                 // Die LinkedList per key suchen
-                myLinkedList = myArrayList[idx];              
+                myLinkedList = myArrayList[idx];               
             }
 
             // Der LinkedList einen Node mit dem Tuple hinzufügen
             myLinkedList.Add((key, value));
 
-            // n ANzahl der Datenpunkte
-            // m ANzahl der Listen
-            alpha = count
+            // Maximale LinkedList-Tiefe erhöhen, falls notwendig
+            maxLengthLinkedList = Math.Max(maxLengthLinkedList, myLinkedList.Count());
         }
 
 
@@ -72,18 +77,24 @@ namespace libHashtable
         /// <returns></returns>
         public V Get(K key)
         {
-            int idx = Math.Abs(key.GetHashCode());
+            int idx = GetIndex(key);
             myLinkedList = myArrayList[idx];
 
-            foreach ((K,V) item in myLinkedList)
+            if (myLinkedList == null)
             {
-                if (key.Equals(item.Item1))
+                throw new Exception("Der Key existiert nicht: " + key);
+            }
+            else
+            {
+                foreach ((K, V) item in myLinkedList)
                 {
-                    return item.Item2;
+                    if (key.Equals(item.Item1))
+                    {
+                        return item.Item2;
+                    }
                 }
             }
-
-            return default;
+            throw new Exception("Der Key existiert nicht: " + key);
         }
 
         /// <summary>
@@ -93,14 +104,55 @@ namespace libHashtable
         /// <returns></returns>
         public bool Remove(K key)
         {
-            int idx = Math.Abs(key.GetHashCode());
+            int idx = GetIndex(key);
             myLinkedList = myArrayList[idx];
-            
+
             foreach ((K, V) item in myLinkedList)
             {
                 if (key.Equals(item.Item1))
                 {
                     myLinkedList.Remove(item);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Gibt einen entsprechenden Index zwischen 0 und der maximalen Arraylänge zurück
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        private int GetIndex(K key)
+        {
+            return Math.Abs(key.GetHashCode() % maxArrayLength);
+        }
+
+
+        /// <summary>
+        /// Berechne das Verhältnis zwischen Array-Länge und LinkedList-Tiefe.
+        /// </summary>
+        public double CalculateAlpha()
+        {
+            return (double)lengthArrayList / maxLengthLinkedList;
+        }
+
+
+        /// <summary>
+        /// Prüft ob ein Element in der Hashtable existiert
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public bool Contains(K key)
+        {
+            int idx = GetIndex(key);
+            myLinkedList = myArrayList[idx];
+
+            foreach ((K, V) item in myLinkedList)
+            {
+                if (key.Equals(item.Item1))
+                {
                     return true;
                 }
             }
